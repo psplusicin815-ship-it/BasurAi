@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BasurAi Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/config.js"></script>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <span style="color:var(--text-secondary);font-size:14px;">Yükleniyor...</span>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <div class="logo-icon">🤖</div>
+    <span>BasurAi</span>
+    <span style="color:var(--text-muted);font-weight:400;font-size:14px;">/ Dashboard</span>
+  </div>
+  <div class="navbar-actions">
+    <a href="index.html" class="btn btn-outline btn-sm">← Ana Sayfa</a>
+    <a id="nav-invite" href="#" class="btn btn-primary btn-sm">➕ Sunucuya Ekle</a>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section-title">Yönetim</div>
+    <div class="sidebar-item active" onclick="showPage('welcome')">
+      <span class="icon">👋</span> Hoşgeldin Mesajı
+    </div>
+    <div class="sidebar-item" onclick="showPage('autorole')">
+      <span class="icon">🎭</span> Otomatik Rol
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- SERVER SELECTOR -->
+    <div class="server-selector-bar">
+      <label>🖥️ Sunucu Seç:</label>
+      <select id="guild-select" onchange="onGuildChange()">
+        <option value="">— Sunucu seçin —</option>
+      </select>
+      <span id="guild-status"></span>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert alert-success" id="alert-success">✅ Ayarlar kaydedildi!</div>
+    <div class="alert alert-error" id="alert-error">❌ Bir hata oluştu.</div>
+
+    <!-- PAGE: WELCOME -->
+    <div id="page-welcome">
+      <div class="no-server" id="welcome-no-server">
+        <div class="icon">👆</div>
+        <h3>Önce Sunucu Seçin</h3>
+        <p>Hoşgeldin mesajı ayarlarını düzenlemek için yukarıdan bir sunucu seçin.</p>
+      </div>
+
+      <div id="welcome-settings" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-icon">👋</div>
+              <div>
+                <h3>Hoşgeldin Mesajı</h3>
+                <p>Yeni üyeler geldiğinde otomatik mesaj gönder</p>
+              </div>
+            </div>
+            <span class="status-badge off" id="welcome-status-badge">⬤ Kapalı</span>
+          </div>
+          <div class="card-body">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <h4>Hoşgeldin Mesajını Aktifleştir</h4>
+                <p>Açıkken yeni üye katıldığında belirlediğiniz kanala mesaj gönderilir</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="welcome-enabled" onchange="updateWelcomeBadge()" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>📢 Mesajın Gönderileceği Kanal</label>
+              <select id="welcome-channel">
+                <option value="">— Kanal seçin —</option>
+              </select>
+              <div class="form-hint">Sadece metin kanalları listelenir</div>
+            </div>
+
+            <div class="form-group">
+              <label>💬 Hoşgeldin Mesajı</label>
+              <textarea id="welcome-message" placeholder="Sunucumuza hoş geldin, {user}! 🎉"></textarea>
+              <div class="form-hint">
+                Kullanılabilir değişkenler: <code style="background:var(--bg-hover);padding:1px 5px;border-radius:4px;">{user}</code> mention, 
+                <code style="background:var(--bg-hover);padding:1px 5px;border-radius:4px;">{username}</code> isim, 
+                <code style="background:var(--bg-hover);padding:1px 5px;border-radius:4px;">{server}</code> sunucu adı, 
+                <code style="background:var(--bg-hover);padding:1px 5px;border-radius:4px;">{count}</code> üye sayısı
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="saveWelcome()">💾 Kaydet</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: AUTO ROLE -->
+    <div id="page-autorole" style="display:none;">
+      <div class="no-server" id="autorole-no-server">
+        <div class="icon">👆</div>
+        <h3>Önce Sunucu Seçin</h3>
+        <p>Otomatik rol ayarlarını düzenlemek için yukarıdan bir sunucu seçin.</p>
+      </div>
+
+      <div id="autorole-settings" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="card-icon">🎭</div>
+              <div>
+                <h3>Otomatik Rol</h3>
+                <p>Sunucuya katılan herkese otomatik rol ver</p>
+              </div>
+            </div>
+            <span class="status-badge off" id="autorole-status-badge">⬤ Kapalı</span>
+          </div>
+          <div class="card-body">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <h4>Otomatik Rolü Aktifleştir</h4>
+                <p>Açıkken sunucuya katılan her üyeye seçtiğiniz rol otomatik verilir</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="autorole-enabled" onchange="updateAutoroleBadge()" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>🎭 Verilecek Rol</label>
+              <select id="autorole-role">
+                <option value="">— Rol seçin —</option>
+              </select>
+              <div class="form-hint">@everyone ve yönetici rolleri önerilmez</div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="saveAutorole()">💾 Kaydet</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/dashboard.js"></script>
+<script>
+  document.getElementById('nav-invite').href = CONFIG.INVITE_URL;
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BasurAi – Akıllı Discord Botu</title>
+  <meta name="description" content="BasurAi: Yapay zeka destekli Discord botu. Sohbet, moderasyon, oyunlar ve daha fazlası." />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/config.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <div class="logo-icon">🤖</div>
+    <span>BasurAi</span>
+  </div>
+  <div class="navbar-actions">
+    <a href="dashboard.html" class="btn btn-outline btn-sm">⚡ Dashboard</a>
+    <a id="invite-btn" href="#" class="btn btn-primary btn-sm">➕ Sunucuya Ekle</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Çevrimiçi &amp; Aktif
+  </div>
+  <h1>Sunucuna <span>Yapay Zeka</span><br>Gücü Katmaya Hazır</h1>
+  <p>BasurAi, Google Gemini ve OpenAI destekli Türkçe Discord botudur. Sohbet, moderasyon, oyunlar, ses kanalı ve çok daha fazlası tek botla!</p>
+  <div class="hero-actions">
+    <a id="invite-hero" href="#" class="btn btn-primary" style="font-size:16px;padding:14px 32px;">
+      ➕ Sunucuya Ekle
+    </a>
+    <a href="dashboard.html" class="btn btn-outline" style="font-size:16px;padding:14px 32px;">
+      ⚡ Dashboard
+    </a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">Gemini</div>
+      <div class="label">AI Modeli</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">31+</div>
+      <div class="label">Slash Komutu</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">7/24</div>
+      <div class="label">Aktif</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">Türkçe</div>
+      <div class="label">Dil Desteği</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-header">
+    <h2>Neler Yapabilir?</h2>
+    <p>BasurAi ile Discord sunucunuzu bir üst seviyeye taşıyın</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Yapay Zeka Sohbet</h3>
+      <p>Google Gemini 2.5 Flash ile akıllı, bağlama duyarlı Türkçe sohbet. Bota mention atman yeterli.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>AI Moderasyon</h3>
+      <p>Küfür, hakaret ve kural ihlallerini otomatik tespit edip ban/kick/uyarı verir.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>Görsel Üretimi</h3>
+      <p>Gemini ile metin açıklamasından otomatik görsel oluştur. Prompt yaz, görsel al.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔊</div>
+      <h3>Sesli Yanıt</h3>
+      <p>Ses kanalına katılarak Türkçe TTS ile mesajları sesli okur. Gerçek zamanlı.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎮</div>
+      <h3>Oyunlar</h3>
+      <p>Sayı tahmin, kelime zinciri, trivia, yazı-tura, zar ve daha fazla eğlence oyunu.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👋</div>
+      <h3>Hoşgeldin Sistemi</h3>
+      <p>Yeni üyeleri otomatik karşıla, kanalı ve mesajı kendin belirle. Embed destekli.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎭</div>
+      <h3>Otomatik Rol</h3>
+      <p>Sunucuya katılan herkese otomatik rol ata. Birkaç tık ile ayarla, gerisini bot halleder.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Web Arama</h3>
+      <p>Google News, DuckDuckGo ve Wikipedia'dan anlık bilgi çek. Haber ve bilgi için ideal.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚙️</div>
+      <h3>Sunucu Yönetimi</h3>
+      <p>Kanal/rol oluştur, sil, yeniden adlandır, kilitle. Tüm bunları doğal dille komut ver.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Hemen Başla</h2>
+  <p>Sadece birkaç saniyede sunucunuza ekleyin, ayarlar için Dashboard'u kullanın.</p>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+    <a id="invite-cta" href="#" class="btn btn-primary" style="font-size:16px;padding:14px 32px;">
+      ➕ Sunucuya Ekle
+    </a>
+    <a href="dashboard.html" class="btn btn-outline" style="font-size:16px;padding:14px 32px;">
+      ⚡ Dashboard'u Aç
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 BasurAi · Tüm hakları saklıdır · Gemini &amp; OpenAI destekli</p>
+</footer>
+
+<script>
+  // Invite URL'yi config'den al
+  document.querySelectorAll('#invite-btn, #invite-hero, #invite-cta').forEach(el => {
+    el.href = CONFIG.INVITE_URL;
+  });
+</script>
+</body>
+</html>
