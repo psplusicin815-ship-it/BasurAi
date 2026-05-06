@@ -268,10 +268,11 @@ client.on(Events.MessageCreate, async (message: Message) => {
     }
 
     if (action.type === "generate_image") {
+      await message.reply(`🎨 ${action.reply}`);
       const imageResult = await executeImageAction(action.prompt, action.reply);
       if (imageResult.kind === "image") {
         const attachment = new AttachmentBuilder(imageResult.buffer, { name: "gorsel.png" });
-        await message.reply({ content: `🎨 ${action.reply}`, files: [attachment] });
+        await message.channel.send({ files: [attachment] });
       } else {
         await message.reply(imageResult.content);
       }
@@ -300,6 +301,10 @@ client.on(Events.MessageCreate, async (message: Message) => {
       );
       await message.reply(refusal);
       return;
+    }
+
+    if (action.type === "sequence") {
+      await message.reply(`⚙️ ${action.reply || `${action.actions.length} adımlı komut işleniyor...`}`);
     }
 
     const textCh = message.channel.type === 0 ? (message.channel as TextChannel) : undefined;
