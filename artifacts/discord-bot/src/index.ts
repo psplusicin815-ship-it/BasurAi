@@ -15,6 +15,12 @@ import {
   Colors,
 } from "discord.js";
 import { parseCommand, summarizeSearchResults, generateRefusalMessage } from "./ai.js";
+import {
+  downloadImage,
+  analyzeImageWithGemini,
+  removeImageBackground,
+  isBackgroundRemovalRequest,
+} from "./vision.js";
 import { executeAction, executeImageAction } from "./actions.js";
 import { logBotActivity } from "./logger.js";
 import { webSearch } from "./search.js";
@@ -204,6 +210,68 @@ client.on(Events.MessageCreate, async (message: Message) => {
   const content = message.content
     .replace(new RegExp(`<@!?${client.user!.id}>`, "g"), "")
     .trim();
+
+  // ===== RESİM İŞLEME =====
+  const imageAttachments = [...message.attachments.values()].filter(
+    (a) =>
+      a.contentType?.startsWith("image/") ||
+      /\.(png|jpg|jpeg|gif|webp)$/i.test(a.name || "")
+  );
+
+  if (imageAttachments.length > 0) {
+    const imgTextChannel = message.channel as TextChannel;
+    await imgTextChannel.sendTyping();
+    const imgChannelName =
+      message.channel.type === 0 ? imgTextChannel.name : "bilinmiyor";
+
+    // Typing göstergesini canlı tut (uzun işlemler için)
+    const typingInterval = setInterval(() => {
+      imgTextChannel.sendTyping().catch(() => null);
+    }, 8000);
+
+    try {
+      if (isBackgroundRemovalRequest(content)) {
+        // Arka plan silme
+        const processingMsg = await message.reply(
+          "🎨 Arka plan siliniyor... Model yükleniyor, **ilk seferde 30-60 saniye** sürebilir."
+        );
+        const resultBuffer = await removeImageBackground(imageAttachments[0].url);
+        const attachment = new AttachmentBuilder(resultBuffer, { name: "arka_plan_silindi.png" });
+        await processingMsg.edit("✅ Arka plan başarıyla silindi!");
+        await imgTextChannel.send({ files: [attachment] });
+      } else {
+        // Görsel analizi
+        const imageDataList = await Promise.all(
+          imageAttachments.slice(0, 4).map((a) => downloadImage(a.url))
+        );
+        const imagePrompt =
+          content ||
+          "Bu görseli detaylıca anlat. Ne görüyorsun? Nesne, renk, mekan, yazı — her detayı Türkçe olarak açıkla.";
+        const analysis = await analyzeImageWithGemini(imageDataList, imagePrompt);
+        for (const part of analysis.match(/.{1,1990}/gs) || [analysis]) {
+          await message.reply(part);
+        }
+        await logBotActivity({
+          guildId: message.guild.id,
+          guildName: message.guild.name,
+          channelId: message.channelId,
+          channelName: imgChannelName,
+          userId: message.author.id,
+          username: message.author.username,
+          messageContent: content || "[resim]",
+          actionType: "image_analysis",
+          actionResult: `${imageAttachments.length} görsel analiz edildi`,
+        });
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error("Görsel işleme hatası:", errorMessage);
+      await message.reply(`❌ Görsel işlenirken hata oluştu: ${errorMessage.slice(0, 200)}`);
+    } finally {
+      clearInterval(typingInterval);
+    }
+    return;
+  }
 
   if (!content) {
     await message.reply(

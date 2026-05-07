@@ -23,17 +23,30 @@ async function chatWithFallback(
     parts: [{ text: m.content }],
   }));
 
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents,
-    config: {
-      systemInstruction: systemMsg?.content,
-      maxOutputTokens: maxTokens,
-      temperature,
-    },
-  });
+  const MAX_RETRIES = 3;
+  let lastError: Error | undefined;
 
-  return response.text ?? "";
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents,
+        config: {
+          systemInstruction: systemMsg?.content,
+          maxOutputTokens: maxTokens,
+          temperature,
+        },
+      });
+      return response.text ?? "";
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < MAX_RETRIES - 1) {
+        await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 export type SingleAction =
