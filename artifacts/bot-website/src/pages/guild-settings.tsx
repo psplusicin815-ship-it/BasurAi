@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Save } from "lucide-react";
 import { Link } from "wouter";
@@ -34,7 +33,7 @@ export default function GuildSettings() {
     queryKey: ["guild-cache", guildId],
     queryFn: async () => {
       const res = await fetch(`/api/bot/guild/${guildId}/cache`);
-      if (!res.ok) throw new Error("Failed to fetch guild cache");
+      if (!res.ok) throw new Error("Sunucu önbelleği alınamadı");
       return res.json();
     },
     enabled: !!guildId,
@@ -44,7 +43,7 @@ export default function GuildSettings() {
     queryKey: ["guild-settings", guildId],
     queryFn: async () => {
       const res = await fetch(`/api/bot/guild/${guildId}/settings`);
-      if (!res.ok) throw new Error("Failed to fetch guild settings");
+      if (!res.ok) throw new Error("Sunucu ayarları alınamadı");
       return res.json();
     },
     enabled: !!guildId,
@@ -57,20 +56,20 @@ export default function GuildSettings() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update settings");
+      if (!res.ok) throw new Error("Ayarlar kaydedilemedi");
       return res.json();
     },
     onSuccess: () => {
       toast({
-        title: "Settings saved",
-        description: "Server settings have been updated successfully.",
+        title: "Ayarlar kaydedildi",
+        description: "Sunucu ayarları başarıyla güncellendi.",
       });
       queryClient.invalidateQueries({ queryKey: ["guild-settings", guildId] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to save settings. Please try again.",
+        title: "Hata",
+        description: "Ayarlar kaydedilemedi. Lütfen tekrar deneyin.",
         variant: "destructive",
       });
     },
@@ -108,24 +107,25 @@ export default function GuildSettings() {
     <Layout>
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" size="icon" asChild className="shrink-0">
+          <Button variant="outline" size="icon" asChild className="shrink-0" data-testid="button-back">
             <Link href="/dashboard">
               <ArrowLeft className="w-4 h-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{cache?.guildName || "Server Settings"}</h1>
-            <p className="text-muted-foreground">Manage modules and configuration for this server.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{cache?.guildName || "Sunucu Ayarları"}</h1>
+            <p className="text-muted-foreground">Bu sunucu için modülleri ve yapılandırmayı yönet.</p>
           </div>
         </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Welcome System */}
             <Card className="border-border/50 bg-card/50 backdrop-blur">
               <CardHeader>
-                <CardTitle>Welcome System</CardTitle>
+                <CardTitle>Hoşgeldin Sistemi</CardTitle>
                 <CardDescription>
-                  Configure welcome messages for new members.
+                  Yeni üyeler için hoşgeldin mesajlarını yapılandır.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -135,15 +135,16 @@ export default function GuildSettings() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/50 p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Enable Welcome Messages</FormLabel>
+                        <FormLabel className="text-base">Hoşgeldin Mesajlarını Etkinleştir</FormLabel>
                         <FormDescription>
-                          Send a message when a user joins the server.
+                          Sunucuya yeni biri katıldığında mesaj gönderir.
                         </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          data-testid="switch-welcome-enabled"
                         />
                       </FormControl>
                     </FormItem>
@@ -157,15 +158,15 @@ export default function GuildSettings() {
                       name="welcomeChannelId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Welcome Channel</FormLabel>
+                          <FormLabel>Hoşgeldin Kanalı</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value || undefined}>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a channel" />
+                              <SelectTrigger data-testid="select-welcome-channel">
+                                <SelectValue placeholder="Bir kanal seç" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {cache?.channels?.map((c: any) => (
+                              {cache?.channels?.map((c: { id: string; name: string }) => (
                                 <SelectItem key={c.id} value={c.id}>
                                   #{c.name}
                                 </SelectItem>
@@ -173,7 +174,7 @@ export default function GuildSettings() {
                             </SelectContent>
                           </Select>
                           <FormDescription>
-                            The channel where welcome messages will be sent.
+                            Hoşgeldin mesajlarının gönderileceği kanal.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -185,12 +186,17 @@ export default function GuildSettings() {
                       name="welcomeMessage"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Welcome Message</FormLabel>
+                          <FormLabel>Hoşgeldin Mesajı</FormLabel>
                           <FormControl>
-                            <Input placeholder="Welcome {user} to {server}!" {...field} value={field.value || ''} />
+                            <Input
+                              placeholder="{user}, {server} sunucusuna hoş geldin!"
+                              data-testid="input-welcome-message"
+                              {...field}
+                              value={field.value || ""}
+                            />
                           </FormControl>
                           <FormDescription>
-                            Variables available: {`{user}, {server}`}
+                            Kullanılabilir değişkenler: {"{user}"}, {"{server}"}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -201,11 +207,12 @@ export default function GuildSettings() {
               </CardContent>
             </Card>
 
+            {/* Auto Role */}
             <Card className="border-border/50 bg-card/50 backdrop-blur">
               <CardHeader>
-                <CardTitle>Auto Role</CardTitle>
+                <CardTitle>Otomatik Rol</CardTitle>
                 <CardDescription>
-                  Automatically assign a role to new members.
+                  Yeni üyelere otomatik olarak bir rol ata.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -215,15 +222,16 @@ export default function GuildSettings() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/50 p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Enable Auto Role</FormLabel>
+                        <FormLabel className="text-base">Otomatik Rolü Etkinleştir</FormLabel>
                         <FormDescription>
-                          Assign a role immediately when users join.
+                          Kullanıcılar katıldığında anında bir rol atar.
                         </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          data-testid="switch-autorole-enabled"
                         />
                       </FormControl>
                     </FormItem>
@@ -236,15 +244,15 @@ export default function GuildSettings() {
                     name="autoRoleId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Role to Assign</FormLabel>
+                        <FormLabel>Atanacak Rol</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || undefined}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                            <SelectTrigger data-testid="select-autorole">
+                              <SelectValue placeholder="Bir rol seç" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cache?.roles?.map((r: any) => (
+                            {cache?.roles?.map((r: { id: string; name: string }) => (
                               <SelectItem key={r.id} value={r.id}>
                                 @{r.name}
                               </SelectItem>
@@ -252,7 +260,7 @@ export default function GuildSettings() {
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Make sure the bot's role is higher than this role.
+                          Botun rolünün bu rolden daha üstte olduğundan emin ol.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -261,13 +269,18 @@ export default function GuildSettings() {
                 )}
               </CardContent>
               <CardFooter className="pt-6">
-                <Button type="submit" disabled={updateSettings.isPending} className="w-full sm:w-auto">
+                <Button
+                  type="submit"
+                  disabled={updateSettings.isPending}
+                  className="w-full sm:w-auto"
+                  data-testid="button-save-settings"
+                >
                   {updateSettings.isPending ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <Save className="w-4 h-4 mr-2" />
                   )}
-                  Save Changes
+                  Değişiklikleri Kaydet
                 </Button>
               </CardFooter>
             </Card>
