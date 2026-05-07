@@ -1,5 +1,10 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "DY5JaDQEKOPM86eastn6y"
+uri = "file://artifacts/bot-website/src/assets/hero-bot.png"
+type = "image"
+title = "Cybernetic bot glowing purple"
 
 [[outputs]]
 id = "ZV-06RyR8T1WpZc0Uj6-6"
